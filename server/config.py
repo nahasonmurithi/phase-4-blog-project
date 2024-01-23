@@ -7,6 +7,8 @@ from dotenv import load_dotenv
 from flask_bcrypt import Bcrypt
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import MetaData
+from server.controllers.user_controllers import user_bp
+
 
 
 load_dotenv()
@@ -31,3 +33,5 @@ db.init_app(app)
 bcrypt = Bcrypt(app)
 
 api = Api(app)
+
+app.register_blueprint(user_bp)

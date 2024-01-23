@@ -1,7 +1,7 @@
 
 from config import db, app
 from faker import Faker
-from models import User, Comment, Vote, Post
+from server.models import User, Comment, Vote, Post
 from config import bcrypt
 from random import choice
 

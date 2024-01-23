@@ -2,7 +2,7 @@ from flask import request, jsonify, make_response
 from flask_restful import Resource
 
 from config import app, api, db
-from models import  User, Comment, Post, Vote
+from server.models import  User, Comment, Post, Vote
 
 class Index(Resource):
     def get(self):
