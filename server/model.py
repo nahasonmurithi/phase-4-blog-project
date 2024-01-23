@@ -19,38 +19,68 @@ class User(db.Model, SerializerMixin):
     full_name = db.Column(db.String, nullable=False)
     _password_hash = db.Column(db.String, unique=True, nullable=False)
     created_at = db.Column(db.DateTime, server_default=db.func.now())
-    # update_at = db.Column(db.DateTime, onupdate=db.func.now())
+    
+   
+ 
+    def __repr__ (self):
+        return f'''User{self.username}, Email{self.email}'''
 
 
 
-Table users {
-  id  integer [primary key]
-  username varchar
-  email  varchar
-  full_name varchar 
-  _password_hash varchar 
-  created_at varchar 
-}
+class Comment(db.Model, SerializerMixin):
+    __tablename__ = 'comments'
+
+    id = db.Column(db.Integer, primary_key=True)
+    post_id = db.Column(db.Integer, db.ForeignKey('post.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    content = db.Column(db.String, nullable=False)
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+    update_at = db.Column(db.DateTime, onupdate=db.func.now())
+
+    def __repr__ (self):
+        return f'''Content: {self.content}'''
 
 
-Table comments {
-  id integer [primary key]
-  post_id integer
-  user_id integer
-  content varchar  
-  created_at varchar  
-  updated_at varchar 
-}
+class Post(db.Model, SerializerMixin):
+    __tablename__ = 'posts'
 
-Table posts {
-  id integer [primary key]
-  phase integer
-  preview varchar
-  minutes_to_read integer
-  title varchar
-  content varchar
-  resources varchar  
-  created_at varchar  
-  updated_at varchar  
-  user_id integer
-}
+
+    id = db.Column(db.Integer, primary_key=True)
+    phase = db.Column(db.Integer)
+    preview = db.Column(db.String, nullable=False)
+    minutes_to_read = db.Column(db.String, nullable=False)
+    title = db.Column(db.String, nullable=False)
+    content = db.Column(db.String, nullable=False)
+    resources = db.Column(db.String, nullable=False)
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+    update_at = db.Column(db.DateTime, onupdate=db.func.now())
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+    def __repr__ (self):
+        return f'''Title: {self.title}, Content{self.content}'''
+
+class Vote(db.Model, SerializerMixin):
+    __tablename__ = 'votes'
+
+    id = db.Column(db.Integer, primary_key=True)
+    vote_type = db.Column(db.Boolean)
+    user_id = db.Column(db.Integer. db.ForeignKey('user.id'))
+    post_id = db.Column(db.Integer, db.ForeignKey('post.id'))
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+
+    
+
+    def __repr__ (self):
+        return f'''Vote type: {self.vote_type}'''
+
+
+
+
+
+Ref: comments.id > users.id // many-to-one
+Ref: comments.id > posts.id // many-to-one
+
+Ref: posts.id > users.id //many to one
+
+Ref: votes.id > users.id //many to one
+Ref: votes.id > posts.id //many to one
