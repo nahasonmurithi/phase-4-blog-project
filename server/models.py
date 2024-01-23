@@ -1,15 +1,10 @@
-from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import MetaData
 from sqlalchemy_serializer import SerializerMixin
 from sqlalchemy.orm import validates
-from config import bcrypt
+from sqlalchemy.ext.hybrid import hybrid_property
+from config import bcrypt, db
 
 
-metadata = MetaData(naming_convention={
-    "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
-})
-
-db = SQLAlchemy(metadata=metadata)
 
 
 class User(db.Model, SerializerMixin):
@@ -56,7 +51,7 @@ class User(db.Model, SerializerMixin):
     @validates('email')
     def validate_email(self, key, email):
         import re
-        pattern = r'/^[a-z]*.[a-z]*@student.moringaschool.com/gm'
+        pattern = r'^[a-z]*.[a-z]*@student.moringaschool.com'
         regex = re.compile(pattern)
         if not regex.fullmatch(email):
             raise ValueError("Use a valid Moringa School email!")
@@ -85,8 +80,8 @@ class Comment(db.Model, SerializerMixin):
     serialize_rules = ('-post.comments', '-user.comments')
 
     id = db.Column(db.Integer, primary_key=True)
-    post_id = db.Column(db.Integer, db.ForeignKey('post.id'))
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    post_id = db.Column(db.Integer, db.ForeignKey('posts.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     content = db.Column(db.String, nullable=False)
     created_at = db.Column(db.DateTime, server_default=db.func.now())
     update_at = db.Column(db.DateTime, onupdate=db.func.now())
@@ -121,10 +116,10 @@ class Post(db.Model, SerializerMixin):
     resources = db.Column(db.String)
     created_at = db.Column(db.DateTime, server_default=db.func.now())
     update_at = db.Column(db.DateTime, onupdate=db.func.now())
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
     comments = db.relationship('Comment', back_populates='post')
-    votes = db.relationship('Comment', back_populates='post')
+    votes = db.relationship('Vote', back_populates='post')
 
 
     @validates('content')
@@ -159,9 +154,12 @@ class Vote(db.Model, SerializerMixin):
 
     id = db.Column(db.Integer, primary_key=True)
     vote_type = db.Column(db.Boolean)
-    user_id = db.Column(db.Integer. db.ForeignKey('user.id'))
-    post_id = db.Column(db.Integer, db.ForeignKey('post.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    post_id = db.Column(db.Integer, db.ForeignKey('posts.id'))
     created_at = db.Column(db.DateTime, server_default=db.func.now())
+
+    user = db.relationship("User", back_populates="votes")
+    post = db.relationship("Post", back_populates="votes")
 
     
 
