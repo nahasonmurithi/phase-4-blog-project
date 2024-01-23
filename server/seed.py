@@ -89,8 +89,8 @@ def seed_database():
             user_id=choice(users_ids),
             post_id=choice(post_ids)
         )
-        comments.append(comment)
-    db.session.add_all(comments)
+        votes.append(vote)
+    db.session.add_all(votes)
     db.session.commit()
 
 
