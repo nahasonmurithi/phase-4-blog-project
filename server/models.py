@@ -2,14 +2,15 @@ from sqlalchemy import MetaData
 from sqlalchemy_serializer import SerializerMixin
 from sqlalchemy.orm import validates
 from sqlalchemy.ext.hybrid import hybrid_property
-from config import bcrypt, db
+from server.config import bcrypt, db
 
 
 
 
 class User(db.Model, SerializerMixin):
     __tablename__ = 'users'
-    serialize_rules = ('-comments.user', '-votes.user', '-post.user')
+    serialize_rules = ('-comments.user', '-comments.post',
+                       '-votes.user', '-posts.user', '-votes.post')
 
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String, unique=True, nullable=False)
@@ -19,8 +20,8 @@ class User(db.Model, SerializerMixin):
     created_at = db.Column(db.DateTime, server_default=db.func.now())
 
     posts = db.relationship('Post', backref='user')
-    comments = db.relationship('Comment', back_populates='user')
-    votes = db.relationship('Vote', back_populates='user')
+    comments = db.relationship('Comment', backref='user')
+    votes = db.relationship('Vote', backref='user')
 
     #password and authentication
     @hybrid_property
@@ -77,7 +78,8 @@ class User(db.Model, SerializerMixin):
 class Comment(db.Model, SerializerMixin):
     __tablename__ = 'comments'
 
-    serialize_rules = ('-post.comments', '-user.comments')
+    serialize_rules = ('-post.comments', '-user.comments',
+                    '-user.posts', '-user.votes', '-post.user', '-post.votes')
 
     id = db.Column(db.Integer, primary_key=True)
     post_id = db.Column(db.Integer, db.ForeignKey('posts.id'))
@@ -87,8 +89,8 @@ class Comment(db.Model, SerializerMixin):
     update_at = db.Column(db.DateTime, onupdate=db.func.now())
 
     #relationships
-    post=db.relationship('Post', back_populates='comments')
-    user=db.relationship('User', back_populates='comments')
+    # post=db.relationship('Post', backref='comments')
+    # user=db.relationship('User', backref='comments')
 
     @validates('content')
     def validate_content(self, key, content):
@@ -104,10 +106,10 @@ class Comment(db.Model, SerializerMixin):
 
 
 class Post(db.Model, SerializerMixin):
+
     __tablename__ = 'posts'
-
-    serialize_rules = ('-comments.post', '-votes.post')
-
+    serialize_rules = ('-comments.post', '-comments.user',
+                       '-votes.post', '-votes.user', '-user.posts', '-user.comments', '-user.votes')
 
     id = db.Column(db.Integer, primary_key=True)
     phase = db.Column(db.Integer)
@@ -118,39 +120,45 @@ class Post(db.Model, SerializerMixin):
     update_at = db.Column(db.DateTime, onupdate=db.func.now())
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
-    comments = db.relationship('Comment', back_populates='post')
-    votes = db.relationship('Vote', back_populates='post')
-
+    # Table relationship
+    comments = db.relationship('Comment', backref='post')
+    votes = db.relationship('Vote', backref='post')
 
     @validates('content')
     def validate_content(self, key, content):
         if not content:
-            raise ValueError("You cannot submit an empty post")
-        if len(content) < 250:
-            raise ValueError("Post must be at least 250 characters long")
+            raise ValueError('Please provide your content')
+
+        if len(content) < 300:
+            raise ValueError('content must be atleast 300 character long')
+
         return content
 
     @validates('phase')
-    def validates_phase(self, key, phase):
+    def validate_phase(self, key, phase):
         if phase not in range(6):
-            raise ValueError('Posts shoild be within the confines of the curriculum')
+            raise ValueError('phases range feom 0 to 5')
         return phase
-    
-    @validates('title')
+
+    @validates("title")
     def validate_title(self, key, title):
         if not title:
-            raise ValueError('Kindly provide a title')
+            raise ValueError('Please provide a title')
+
         if len(title) not in range(3, 100):
-            raise ValueError("Title should be at least 3 characters")
+            raise ValueError('Title should be atleast 3 characters long')
+
         return title
 
-    def __repr__ (self):
-        return f'''Title: {self.title}, Content{self.content}'''
+    def __repr__(self):
+        return f'''<Title: {self.title}, Content{self.content}>'''
+
 
 class Vote(db.Model, SerializerMixin):
     __tablename__ = 'votes'
 
-    serialize_rules=('-user.votes', '-post.votes')
+    serialize_rules = ('-user.votes', '-user.comments', '-user.posts', 
+                       '-post.comments', '-post.votes', '-post.user')
 
     id = db.Column(db.Integer, primary_key=True)
     vote_type = db.Column(db.Boolean)
@@ -158,8 +166,8 @@ class Vote(db.Model, SerializerMixin):
     post_id = db.Column(db.Integer, db.ForeignKey('posts.id'))
     created_at = db.Column(db.DateTime, server_default=db.func.now())
 
-    user = db.relationship("User", back_populates="votes")
-    post = db.relationship("Post", back_populates="votes")
+    # user = db.relationship("User", back_populates="votes")
+    # post = db.relationship("Post", back_populates="votes")
 
     
 

@@ -1,9 +1,22 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import App from './App';
-import './index.css';
+import React from "react";
+import ReactDOM from "react-dom/client";
+import { BrowserRouter } from "react-router-dom";
+import "./style.css";
+import App from "./App";
+import { PostsProvider } from "./context/postsContext";
+import { UserProvider } from "./context/authContext";
 
-ReactDOM.render(
-  <App />,
-  document.getElementById('root')
-);
+// entry point of application
+const root = ReactDOM.createRoot(document.getElementById("root"));
+
+root.render(
+  <>
+    <BrowserRouter>
+      <UserProvider>
+        <PostsProvider>
+          <App />
+        </PostsProvider>
+      </UserProvider>
+    </BrowserRouter>
+  </>
+)

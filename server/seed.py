@@ -24,7 +24,7 @@ def seed_database():
     full_names = ['Allan Njoroge', 'Samson Githinji',
                   'Noni Muthoni', 'Mercy Mwongeli', 'Nahason Murithi']
     passwords = ['daskjdka', 'duejnsdbh',
-                 'eruiapodxdba', 'aueoqnckas', 'dlkaojuhs']
+                 'eruiapodxdba', 'aueoqnckas', 'WickedWeekends']
 
     users = []
     for i in range(5):
