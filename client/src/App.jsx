@@ -5,6 +5,7 @@ import Signup from "./components/signup/Signup";
 import Signin from "./components/signin/Signin";
 import Dashboard from "./components/dashboard/Dashboard";
 import CreatePost from "./components/createPost/CreatePost";
+import Profile from "./components/userProfile/Profile";
 
 // routes
 const App = () => {
@@ -16,6 +17,7 @@ const App = () => {
         <Route exact path="/signin" element={<Signin />} />
         <Route exact path="/dashboard" element={<Dashboard />} />
         <Route exact path="/createPost" element={<CreatePost />} />
+        <Route exact path="/profile" element={<Profile />} />
       </Routes>
     </div>
   );
